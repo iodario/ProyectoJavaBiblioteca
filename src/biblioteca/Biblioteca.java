@@ -1,6 +1,7 @@
 package biblioteca;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import static java.util.Comparator.*;
 
@@ -244,8 +245,6 @@ public class Biblioteca {
         return listadoCategoria;
     }
 
-
-
     //LISTAR TITULOS PERO SOLAMENTE DE REVISTAS, ASCENDENTE CASE INSENSITIVE
     public List<String>listarTitulosRevistas(){
         List <String> titulosRevistas = new ArrayList<>();
@@ -256,6 +255,74 @@ public class Biblioteca {
         }
         titulosRevistas.sort(String.CASE_INSENSITIVE_ORDER);
         return titulosRevistas;
+    }
+
+
+    //ITERATOR
+    //Un caso típico en tu biblioteca para usar un Iterator sería cuando querés eliminar o mover materiales
+    // (libros, revistas, eBooks) según su estado (prestado o disponible) mientras recorres la lista.
+    // Son procesos donde el tamaño de la lista cambia mientras la recorres.
+
+    //crear una lista separada con todos los prestados:
+    public List<Material> separarPrestados() {
+        List<Material> prestados = new ArrayList<>();
+        Iterator<Material> it = materiales.iterator();
+
+        while (it.hasNext()) {
+            Material m = it.next();
+            if (m.estaPrestado()) {
+                prestados.add(m);  // Los copiamos a otra lista
+                it.remove();       // Y los quitamos de la lista original materiales
+            }
+        }
+
+        return prestados;
+    }
+
+
+        // sacar del catálogo activo de forma segura y, por ejemplo, guardarlos en otra lista o exportarlos.
+    public List<Material> separarExtraviadosODanados() {
+        List<Material> fueraDeCatalogo = new ArrayList<>();
+        Iterator<Material> it = materiales.iterator();
+
+        while (it.hasNext()) {
+            Material m = it.next();
+            EstadoPrestamo e = m.getEstado();
+            if (e == EstadoPrestamo.EXTRAVIADO || e == EstadoPrestamo.DANADO) {
+                fueraDeCatalogo.add(m); // los junto aparte
+                it.remove();            //  los quito del catálogo activo
+            }
+        }
+        return fueraDeCatalogo;
+    }
+
+
+    // hacer un listado con todos los materiales atrasados ( no destructiva , no elimina de la coleccion)
+    //usando for each
+    public List<Material> listarAtrasados() {
+        List<Material> atrasados = new ArrayList<>();
+        for (Material m : materiales) {
+            EstadoPrestamo e = m.getEstado();
+            if (e == EstadoPrestamo.ATRASADOS ) {
+                atrasados.add(m);
+            }
+        }
+        return atrasados;
+    }
+
+    //lo mismo usando un ITERATOR
+    public List<Material> listarAtrasadosIterator() {
+        List<Material> atrasados = new ArrayList<>();
+        Iterator<Material> it = materiales.iterator();      // uso explícito del Iterator
+
+        while (it.hasNext()) {
+            Material m = it.next();
+            EstadoPrestamo e = m.getEstado();
+            if (e == EstadoPrestamo.ATRASADOS ) {
+                atrasados.add(m); // solo los agrego a la nueva lista, NO modifico materiales
+            }
+        }
+        return atrasados;
     }
 
 

@@ -1,5 +1,5 @@
 package biblioteca;
 
 public enum EstadoPrestamo {
-    PRESTADO, DISPONIBLE
+    PRESTADO, DISPONIBLE,EXTRAVIADO, DANADO, ATRASADOS
 }
