@@ -6,35 +6,6 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        /*
-        System.out.println(" Creacion de objetos de prueba");
-        System.out.println();
-
-        //CREACION DE OBJETOS DE PRUEBA
-        Libro a1= new Libro ( "El Hobbit", "Tolkien", 1995, GeneroLibro.DRAMA );
-        Libro a2= new Libro ( "Harry Potter", "Rowling", 2002, GeneroLibro.NOVELA );
-
-        Ebook b1 = new Ebook("Clean Code", "Martin", 2005);
-        Ebook b2 = new Ebook("Clean Code2", "Martina", 2010);
-
-        Revista c1 = new Revista ("Gente", "Editorial Atlantida", 2002);
-        Revista c2 = new Revista ("Software news", "Editorial IA", 2025);
-
-        //Imprimir, empleando los toString();
-        System.out.println(a1);
-        System.out.println(a2);
-        System.out.println();
-        System.out.println(b1);
-        System.out.println(b2);
-        System.out.println();
-        System.out.println(c1);
-        System.out.println(c2);
-
-        b1.leer();
-        b2.leer();
-        */
-
-        //ABM GESTOR
 
         System.out.println("=============GESTOR DE BIBLIOTECA===================");
 
@@ -45,6 +16,7 @@ public class Main {
             boolean salir = false;
 
             while (!salir) {
+
                 mostrarMenu();
                 System.out.print("Seleccione una opción: ");
                 String entrada = scanner.nextLine();
@@ -75,6 +47,8 @@ public class Main {
                     }
                     default -> System.out.println("Opción no reconocida. Intente nuevamente.\n");
                 }
+                System.out.println("\nPresione Enter para continuar...");
+                scanner.nextLine();
             }
         }
     }
