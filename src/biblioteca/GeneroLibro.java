@@ -1,5 +1,11 @@
 package biblioteca;
 
+/**
+ * Géneros literarios disponibles para clasificar libros.
+ */
 public enum GeneroLibro {
-    DRAMA, NOVELA, ROMANCE, TERROR, AVENTURA, CIENCIA_FICCION, FANTASIA
+    DRAMA,
+    NOVELA,
+    ROMANCE,
+    TERROR
 }
