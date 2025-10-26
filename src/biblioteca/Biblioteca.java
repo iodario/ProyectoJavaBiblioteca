@@ -1,332 +1,68 @@
 package biblioteca;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import static java.util.Comparator.*;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+/**
+ * Repositorio genérico de materiales. El tipo T está acotado a {@link Material}
+ * para garantizar que todas las operaciones trabajen con elementos compatibles.
+ */
+public class Biblioteca<T extends Material> {
 
-public class Biblioteca {
-        private List<Material> materiales = new ArrayList<>();
+    private final List<T> materiales = new ArrayList<>();
 
-        //BUSCA POR ID, devuelve null sino existe
-    public Material buscarPorId(int id) {
-        Material encontrado = null; // valor por defecto si no se encuentra
-
-        for (Material m : materiales) {
-            if (m.getId() == id) {
-                encontrado = m; // guarda el encontrado pero no retorna todavía
-                break;         // sale del bucle al encontrarlo
-            }
-        }
-
-        return encontrado; // devuelve el resultado (null si no se halló)
+    /** Agrega un material tipado. */
+    public void agregar(T t) {
+        materiales.add(t);
     }
 
-
-    //BUSCA POR TITULO, la primer coincidencia exacta, ignora mayusculas/ minusculas, devuelve null si no existe
-    public Material buscarPorTitulo(String texto) {
-        Material resultado = null; // valor por defecto si no encuentra nada
-
-        for (Material m : materiales) {
-            if (m.getTitulo().equalsIgnoreCase(texto)) {
-                resultado = m; // guarda el material encontrado
-                break;         // sale del bucle al hallarlo
-            }
-        }
-        return resultado; // devuelve el hallado o null si no hubo coincidencia
+    /** Elimina por id. Retorna true si se eliminó. */
+    public boolean eliminarPorId(int id) {
+        return materiales.removeIf(m -> m.getId() == id);
     }
 
-    //BUSCA POR TITULO, DEVOLVIENDO UNA LISTA DE COINCIDENCIAS CON TEXTO PASADO
-    public List<Material> buscarPorTituloLista(String texto) {
-        List<Material> encontrados = new ArrayList<>();
-
-        for (Material m : materiales) {
-            if (m.getTitulo().toLowerCase().contains(texto.toLowerCase())) {
-                encontrados.add(m);
-            }
-        }
-        return encontrados;
+    /** Busca por id retornando Optional. Optional evita nulls accidentales. */
+    public Optional<T> buscarPorId(int id) {
+        return materiales.stream().filter(m -> m.getId() == id).findFirst();
     }
 
-
-
-    //--ABM -- //
-    //ALTA
-
-    public void alta(Material m) {
-        if (m != null) materiales.add(m);
+    /**
+     * Búsqueda genérica por condición.
+     * Usamos Predicate<? super T> para permitir supertipos de T (PECS: Producer Extends, Consumer Super).
+     * Predicate<T> es una función T -> boolean; se puede combinar con and(), or() y negate().
+     */
+    public List<T> buscar(Predicate<? super T> criterio) {
+        return materiales.stream().filter(criterio).toList();
     }
 
-
-    //BAJA
-
-     //Metodo auxiliar para eliminar un material ya encontrado.
-    public boolean eliminarMaterial(Material m) {
-        boolean eliminado = false;
-        if (m != null) {
-            materiales.remove(m);
-            eliminado = true;
-        }
-        return eliminado;
+    /**
+     * Ordenamiento genérico.
+     * Comparator<? super T> permite comparadores definidos en supertipos.
+     */
+    public void ordenar(Comparator<? super T> comparador) {
+        materiales.sort(comparador);
     }
 
-     // Elimina un material dado por ID.
-    public boolean bajaPorId(int id){
-        return eliminarMaterial(buscarPorId(id));
+    /**
+     * Proyección genérica: transforma T -> R (por ejemplo a DTOs o Strings).
+     * Function<? super T, ? extends R> sigue la regla PECS: consumimos T (por eso super) y producimos R (por eso extends).
+     */
+    public <R> List<R> map(Function<? super T, ? extends R> f) {
+        return materiales.stream().map(f).collect(Collectors.toList());
     }
 
-    // Elimina un material dado por título.
-    public boolean bajaPorTitulo(String titulo){
-        return eliminarMaterial(buscarPorTitulo(titulo));
+    /** Devuelve una copia inmodificable para lecturas seguras. */
+    public List<T> verTodos() {
+        return Collections.unmodifiableList(materiales);
     }
 
-
-    //MODIFICACION
-
-    public boolean modificarDatos (int id, String nuevoTitulo, String nuevoAutor, int nuevoAnio){
-        boolean encontrado = false;
-        Material m = buscarPorId(id);
-        if (m != null  ){
-            //logica
-            m.setTitulo(nuevoTitulo.trim());
-            m.setAutor(nuevoAutor.trim());
-            m.setAnioPublicacion(nuevoAnio);
-            encontrado = true;
-        }
-
-        return encontrado;
-    }
-
-
-    //LISTADOS
-    //1) Listar todos sin ordenar
-    public List<Material> listarTodos(){
-        return new ArrayList<>(materiales);
-    }
-
-    // 2) Listar por TÍTULO (ignorando mayúsculas/minúsculas)
-    public List<Material> listarPorTitulo() {
-        List<Material> copia = new ArrayList<>(materiales);
-        copia.sort(comparing(Material::getTitulo, String.CASE_INSENSITIVE_ORDER));
-        return copia;
-    }
-
-    // 3) Listar por TÍTULO descendente (ignorando mayúsculas/minúsculas)
-    public List<Material> listarPorTituloDesc() {
-        List<Material> copia = new ArrayList<>(materiales);
-        copia.sort(comparing(Material::getTitulo, String.CASE_INSENSITIVE_ORDER).reversed());
-        return copia;
-    }
-
-    // 4) Listar por AUTOR ascendente
-    public List<Material> listarPorAutorAsc() {
-        List<Material> copia = new ArrayList<>(materiales);
-        copia.sort(comparing(Material::getAutor, String.CASE_INSENSITIVE_ORDER));
-        return copia;
-    }
-
-    // 5) Listar por AÑO ascendente
-    public List<Material> listarPorAnioAsc() {
-        List<Material> copia = new ArrayList<>(materiales);
-        copia.sort(comparingInt(Material::getAnioPublicacion));
-        return copia;
-    }
-
-    // 6) Listar Compuesto: por AUTOR y luego TÍTULO
-    public List<Material> listarPorAutorLuegoTitulo() {
-        List<Material> copia = new ArrayList<>(materiales);
-        copia.sort(
-                comparing(Material::getAutor, String.CASE_INSENSITIVE_ORDER)
-                        .thenComparing(Material::getTitulo, String.CASE_INSENSITIVE_ORDER)
-        );
-        return copia;
-    }
-
-
-
-
-
-
-    // === PRÉSTAMO / DEVOLUCIÓN ===
-    public void prestar(int id) {
-        Material m = buscarPorId(id);
-
-        if (m != null && m.estaDisponible()) {
-            m.prestar();
-            System.out.println("Préstamo realizado");
-        } else {
-            System.out.println(" No disponible o no encontrado");
-        }
-    }
-
-    public void devolver(int id) {
-        Material m = buscarPorId(id);
-
-        if (m != null && !m.estaDisponible()) {
-            m.devolver();
-            System.out.println("Devuelto correctamente");
-        } else {
-            System.out.println("No se pudo devolver (ya disponible o no existe)");
-        }
-    }
-
-    // === FILTROS Y ESTADISTICAS DE CANTIDADES===
-
-    //CANTIDAD DE MATERIALES
-    public int cantidad() {
+    public int size() {
         return materiales.size();
     }
-
-    //CANTIDAD DE PRESTADOS
-    public int cantidadPrestados() {
-        int contador = 0;
-        for (Material m : materiales) {
-            if (m.estaPrestado()) {
-                contador++;
-            }
-        }
-        return contador;
-    }
-
-    //CANTIDAD DE DISPONIBLES
-    public int cantidadDisponibles(){
-        int contador = 0;
-        for (Material m : materiales){
-            if(m.estaDisponible()){
-                contador++;
-            }
-        }
-        return contador;
-    }
-
-    //LISTAR  PRESTADOS
-    public List<Material> listarPrestados() {
-        List<Material> prestados = new ArrayList<>();
-        for (Material m : materiales) {
-            if (m.estaPrestado()) {
-                prestados.add(m);
-            }
-        }
-        return prestados;
-    }
-
-    //LISTAR AUTORES ORDEN ASCENDENTE CASE INSENSITIVE
-    public List<String>listarAutores(){
-        List<String> autores = new ArrayList<>();
-        for (Material m: materiales){
-            autores.add(m.getAutor());
-        }
-        autores.sort(String.CASE_INSENSITIVE_ORDER);
-        return autores;
-    }
-
-
-
-    //LISTAR TITULOS ORDEN ASCENDENTE CASE INSENSITIVE
-    public List<String>listarTitulos(){
-        List <String> titulos = new ArrayList<>();
-           for(Material m : materiales){
-               titulos.add(m.getTitulo());
-            }
-           titulos.sort(String.CASE_INSENSITIVE_ORDER);
-           return titulos;
-    }
-
-
-    //FILTROS POR CATEGORIAS
-    public List<Material> listarPorCategoria(CategoriaMaterial tipo) {
-        List<Material> listadoCategoria = new ArrayList<>();
-        for (Material m : materiales) {
-            if (m.getCategoria() == tipo) {
-                listadoCategoria.add(m);
-            }
-        }
-        return listadoCategoria;
-    }
-
-    //LISTAR TITULOS PERO SOLAMENTE DE REVISTAS, ASCENDENTE CASE INSENSITIVE
-    public List<String>listarTitulosRevistas(){
-        List <String> titulosRevistas = new ArrayList<>();
-        for(Material m : materiales) {
-            if (m.getCategoria() == CategoriaMaterial.REVISTA) {
-                titulosRevistas.add(m.getTitulo());
-            }
-        }
-        titulosRevistas.sort(String.CASE_INSENSITIVE_ORDER);
-        return titulosRevistas;
-    }
-
-
-    //ITERATOR
-    //Un caso típico en tu biblioteca para usar un Iterator sería cuando querés eliminar o mover materiales
-    // (libros, revistas, eBooks) según su estado (prestado o disponible) mientras recorres la lista.
-    // Son procesos donde el tamaño de la lista cambia mientras la recorres.
-
-    //crear una lista separada con todos los prestados:
-    public List<Material> separarPrestados() {
-        List<Material> prestados = new ArrayList<>();
-        Iterator<Material> it = materiales.iterator();
-
-        while (it.hasNext()) {
-            Material m = it.next();
-            if (m.estaPrestado()) {
-                prestados.add(m);  // Los copiamos a otra lista
-                it.remove();       // Y los quitamos de la lista original materiales
-            }
-        }
-
-        return prestados;
-    }
-
-
-        // sacar del catálogo activo de forma segura y, por ejemplo, guardarlos en otra lista o exportarlos.
-    public List<Material> separarExtraviadosODanados() {
-        List<Material> fueraDeCatalogo = new ArrayList<>();
-        Iterator<Material> it = materiales.iterator();
-
-        while (it.hasNext()) {
-            Material m = it.next();
-            EstadoPrestamo e = m.getEstado();
-            if (e == EstadoPrestamo.EXTRAVIADO || e == EstadoPrestamo.DANADO) {
-                fueraDeCatalogo.add(m); // los junto aparte
-                it.remove();            //  los quito del catálogo activo
-            }
-        }
-        return fueraDeCatalogo;
-    }
-
-
-    // hacer un listado con todos los materiales atrasados ( no destructiva , no elimina de la coleccion)
-    //usando for each
-    public List<Material> listarAtrasados() {
-        List<Material> atrasados = new ArrayList<>();
-        for (Material m : materiales) {
-            EstadoPrestamo e = m.getEstado();
-            if (e == EstadoPrestamo.ATRASADOS ) {
-                atrasados.add(m);
-            }
-        }
-        return atrasados;
-    }
-
-    //lo mismo usando un ITERATOR
-    public List<Material> listarAtrasadosIterator() {
-        List<Material> atrasados = new ArrayList<>();
-        Iterator<Material> it = materiales.iterator();      // uso explícito del Iterator
-
-        while (it.hasNext()) {
-            Material m = it.next();
-            EstadoPrestamo e = m.getEstado();
-            if (e == EstadoPrestamo.ATRASADOS ) {
-                atrasados.add(m); // solo los agrego a la nueva lista, NO modifico materiales
-            }
-        }
-        return atrasados;
-    }
-
-
-
-
-
 }

@@ -1,5 +1,9 @@
 package biblioteca;
 
+/**
+ * Estado básico de un material prestable.
+ */
 public enum EstadoPrestamo {
-    PRESTADO, DISPONIBLE,EXTRAVIADO, DANADO, ATRASADOS
+    DISPONIBLE,
+    PRESTADO
 }

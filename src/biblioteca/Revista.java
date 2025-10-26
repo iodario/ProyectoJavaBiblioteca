@@ -1,18 +1,33 @@
 package biblioteca;
 
-public class Revista extends Material{
-    //atributos de la subclase
-    //no hay
+/**
+ * Revista impresa que no es prestable para simplificar el ejemplo.
+ * De esta forma demostramos que los servicios genéricos imponen límites de tipo.
+ */
+public class Revista extends Material {
 
-    //constructor de la subclase
-    public Revista ( String titulo, String autor, int anio){
-        super(titulo, autor, anio, CategoriaMaterial.REVISTA);
+    private final CategoriaMaterial categoria = CategoriaMaterial.REVISTA;
+
+    public Revista(int id, String titulo, String autor, int anioPublicacion) {
+        super(id, titulo, autor, anioPublicacion);
     }
 
-    //toString
+    public CategoriaMaterial getCategoria() {
+        return categoria;
+    }
+
+    @Override
+    public void mostrarDetalles() {
+        System.out.printf("[REVISTA] #%d %s (%d) - %s%n", id, titulo, anioPublicacion, autor);
+    }
 
     @Override
     public String toString() {
-        return super.toString()  + " Revista -";
+        return "Revista{" +
+                "id=" + id +
+                ", titulo='" + titulo + '\'' +
+                ", autor='" + autor + '\'' +
+                ", anioPublicacion=" + anioPublicacion +
+                '}';
     }
 }

@@ -1,23 +1,41 @@
 package biblioteca;
 
+/**
+ * Representa un libro digital que se puede leer en línea.
+ * Implementa {@link LeibleOnline} para que el servicio genérico de lectura obtenga URLs.
+ */
 public class Ebook extends Material implements LeibleOnline {
-        //atributos de la subclase
-        // no hay
 
-        //constructor de la subclase
-        public Ebook (String titulo, String autor, int anio){
-            super(titulo, autor, anio, CategoriaMaterial.EBOOK);
-        }
+    private final CategoriaMaterial categoria = CategoriaMaterial.EBOOK;
+    private final String urlLectura;
 
-        //metodos abstractos
-    @Override
-    public void leer() {
-        System.out.println("Leyendo eBook: " + getTitulo());
+    public Ebook(int id, String titulo, String autor, int anioPublicacion, String urlLectura) {
+        super(id, titulo, autor, anioPublicacion);
+        this.urlLectura = urlLectura;
     }
 
-    //to String
+    public CategoriaMaterial getCategoria() {
+        return categoria;
+    }
+
+    @Override
+    public void mostrarDetalles() {
+        System.out.printf("[EBOOK] #%d %s (%d) - %s -> %s%n", id, titulo, anioPublicacion, autor, urlLectura);
+    }
+
+    @Override
+    public String obtenerURLLectura() {
+        return urlLectura;
+    }
+
     @Override
     public String toString() {
-        return super.toString()  + " Ebook leible online - ";
+        return "Ebook{" +
+                "id=" + id +
+                ", titulo='" + titulo + '\'' +
+                ", autor='" + autor + '\'' +
+                ", anioPublicacion=" + anioPublicacion +
+                ", urlLectura='" + urlLectura + '\'' +
+                '}';
     }
 }
